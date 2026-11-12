@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>透视镜 · X-Ray Mirror</title>
+<link rel="stylesheet" href="css/style.css">
+<script type="importmap">{ "imports": { "three": "./vendor/three/three.module.js" } }</script>
+</head>
+<body data-style="xray">
+<canvas id="stage"></canvas>
+<video id="cam" playsinline muted></video>
+<svg id="leaders"></svg>
+<div id="labels"></div>
+
+<div id="card"><div class="zh"></div><div class="en"></div><div class="fact"></div></div>
+
+<header id="hud" class="hidden">
+  <div class="brand"><span class="mark"></span><b>透视镜</b><i>X-RAY MIRROR</i></div>
+  <nav class="nav modes" aria-label="模式"><button data-m="show" class="on">展示</button><button data-m="lesson">课程<span class="sub"> · X 光之手</span></button></nav>
+  <div class="chips show-only">
+    <span class="chip" id="c-face">面部</span><span class="chip" id="c-hand">手</span><span class="chip" id="c-body">身体</span><span class="chip" id="c-animal">猫 / 狗</span>
+  </div>
+  <div class="meta"><span id="fps">–</span> FPS · <span id="tris">–</span> 三角面 · 全部由代码生成</div>
+</header>
+
+<div id="hint" class="hidden show-only">把鼠标移到骨头上，看看它叫什么</div>
+
+<footer id="dock" class="hidden">
+  <div class="seg view show-only" id="view" aria-label="看法">
+    <button data-v="full" class="on" title="整个画面都透视（V 切换）"><svg viewBox="0 0 16 16"><rect x="1.5" y="3" width="13" height="10" rx="2"/></svg>全身</button>
+    <button data-v="lens" title="只透视手掌对着的地方（V 切换）"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5"/><circle class="f" cx="8" cy="8" r="1.6"/></svg>透镜</button>
+  </div>
+  <div class="sep show-only"></div>
+  <div class="seg" id="styles">
+    <button data-s="0" class="on"><kbd>1</kbd>X 光</button>
+    <button data-s="1"><kbd>2</kbd>黏土 3D</button>
+    <button data-s="2"><kbd>3</kbd>像素 HD-2D</button>
+    <button data-s="3"><kbd>4</kbd>ASCII</button>
+  </div>
+  <div class="sep"></div>
+  <div class="toggles">
+    <button class="tg on show-only" id="t-bone">骨骼</button>
+    <button class="tg on show-only" id="t-organ">器官</button>
+    <button class="tg on show-only" id="t-label">标注</button>
+    <button class="tg on show-only" id="t-animal">动物</button>
+    <button class="tg on lesson-only" id="t-sound">声音</button>
+    <button class="tg on" id="t-mirror">镜像</button>
+  </div>
+  <div class="sep show-only"></div>
+  <div class="seg mini show-only" id="people"><span class="lbl">人数</span><button data-n="1">1</button><button data-n="2">2</button><button data-n="3" class="on">3</button></div>
+  <div class="sep slider-sep"></div>
+  <label class="slider">真实画面<input type="range" id="real" min="0" max="100" value="0"></label>
+</footer>
+
+<!-- course mode · lesson 01 -->
+<div id="lesson" class="hidden">
+  <div id="l-counter">
+    <div class="n"><b id="l-n">0</b><span>/ 27 块骨头已显影</span></div>
+    <div id="l-map"></div>
+    <div id="l-timer"></div>
+  </div>
+  <div id="l-banner"><div class="k"></div><div class="t"></div></div>
+  <div id="l-pose"><div class="e"></div><div class="nm"></div><div class="i"></div><div class="pb"><span></span></div></div>
+  <div id="l-caption"><div class="a"></div><div class="b"></div><div class="lost">把手举到镜头前，课程会接着上</div></div>
+  <div id="l-pops"></div>
+  <svg id="l-cursor" viewBox="0 0 64 64"><circle class="r" cx="32" cy="32" r="24"/><circle class="p" cx="32" cy="32" r="24" pathLength="1"/><circle class="d" cx="32" cy="32" r="3"/></svg>
+  <button id="l-skip">跳过这一步 ›</button>
+  <div id="l-note">示意用的骨骼模型，根据手的姿势推算后叠加，不是你本人的 X 光片，不能用来看伤病。</div>
+</div>
+<section id="l-intro" class="sheet">
+  <div class="sheet-box">
+    <div class="eyebrow">课程 01 · 约 3 分钟</div>
+    <h2>X 光之手</h2>
+    <p class="lead">把手举到镜头前，看你的 27 块骨头怎么动。</p>
+    <ol class="acts">
+      <li><b>显影</b>动一动关节，把骨头一块块点亮</li>
+      <li><b>腕骨点名</b>用指尖认出手腕里的小骨头</li>
+      <li><b>骨头手势</b>摆出手势，看是哪几根骨头在出力</li>
+      <li><b>拍片子</b>带走一张你的手骨胶片卡</li>
+    </ol>
+    <div class="actions"><button id="l-start">开始上课</button><button id="l-back" class="ghost">回到展示</button></div>
+    <p class="fine">画面只在这台电脑上处理，不会上传。四种风格在课程里一样可以切换。</p>
+  </div>
+</section>
+<section id="l-film" class="sheet">
+  <div class="film-box">
+    <img id="l-film-img" alt="你的手骨胶片卡">
+    <div class="film-side">
+      <div class="eyebrow">下课啦</div>
+      <h2>你的片子</h2>
+      <div id="l-film-stats"></div>
+      <div id="l-film-miss"></div>
+      <p class="why">骨头含钙多，挡住的 X 线多，所以在片子上发白；肌肉和皮肤挡得少，显得发灰。</p>
+      <div class="actions"><button id="l-save">保存这张片子</button><button id="l-again" class="ghost">再上一次</button><button id="l-home" class="ghost">回到展示</button></div>
+    </div>
+  </div>
+</section>
+
+<section id="start">
+  <div class="panel">
+    <div class="eyebrow">X-RAY MIRROR</div>
+    <h1>透视镜</h1>
+    <p class="lead">站到镜头前，看看藏在身体里的骨骼和器官。<br>动动手指、张张嘴，它们会跟着你一起动。</p>
+    <div class="progress"><div class="bar"><span id="bar"></span></div><div id="status">正在准备…</div><div id="status2"></div></div>
+    <div class="seg modes start-modes"><button data-m="show" class="on">展示模式</button><button data-m="lesson">课程模式 · X 光之手</button></div>
+    <div class="actions">
+      <button id="go" disabled>开启摄像头</button>
+      <button id="demo" class="ghost" disabled>先看演示</button>
+    </div>
+    <p class="fine">画面只在这台电脑上处理，不会上传。<br>每一块骨头和器官都是打开页面时用代码现场生成的，没有加载任何模型文件。</p>
+  </div>
+</section>
+<script type="module" src="src/main.js"></script>
+</body>
+</html>
