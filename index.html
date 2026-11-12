@@ -21,6 +21,13 @@
   <div class="chips show-only">
     <span class="chip" id="c-face">面部</span><span class="chip" id="c-hand">手</span><span class="chip" id="c-body">身体</span><span class="chip" id="c-animal">猫 / 狗</span>
   </div>
+  <!-- X 光之手拆出的两部分（独立页面，代码在 xray-hand/，与透视镜引擎分开） -->
+  <nav class="xh-links" aria-label="X 光之手"><a href="xray-hand/hand.html">1 · 手部识别</a><a href="xray-hand/gestures.html">2 · 动作识别</a></nav>
+  <style>
+    .xh-links { display: flex; gap: 8px; margin-left: 14px; }
+    .xh-links a { font-size: 13px; padding: 6px 14px; border: 1px solid var(--accent); border-radius: 999px; color: var(--ink); background: var(--glass); text-decoration: none; letter-spacing: .05em; transition: background .2s, box-shadow .2s; }
+    .xh-links a:hover { box-shadow: 0 0 12px var(--accent); }
+  </style>
   <div class="meta"><span id="fps">–</span> FPS · <span id="tris">–</span> 三角面 · 全部由代码生成</div>
 </header>
 
